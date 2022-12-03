@@ -3,20 +3,12 @@ use std::io::{BufRead, BufReader, Lines};
 
 #[derive(PartialEq, Copy, Clone)]
 enum MoveType {
-    Rock,
-    Paper,
-    Scissors,
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3,
 }
 
 impl MoveType {
-    fn get_value(self) -> u8 {
-        match self {
-            MoveType::Rock => 1,
-            MoveType::Paper => 2,
-            MoveType::Scissors => 3,
-        }
-    }
-
     fn get_beating_move(self) -> Self {
         match self {
             MoveType::Rock => MoveType::Paper,
@@ -35,19 +27,9 @@ impl MoveType {
 }
 
 enum MoveOutcome {
-    Win,
-    Loss,
-    Draw,
-}
-
-impl MoveOutcome {
-    fn get_value(self) -> u8 {
-        match self {
-            MoveOutcome::Win => 6,
-            MoveOutcome::Draw => 3,
-            MoveOutcome::Loss => 0,
-        }
-    }
+    Loss = 0,
+    Draw = 3,
+    Win = 6,
 }
 
 fn get_input() -> Lines<BufReader<File>> {
@@ -97,8 +79,7 @@ fn score_moves(moves: Vec<(MoveType, MoveType)>) -> u64 {
 
     for current_move in moves {
         let (prompt_move, response_move) = current_move;
-        score +=
-            (response_move.get_value() + play_move(prompt_move, response_move).get_value()) as u64;
+        score += response_move as u64 + play_move(prompt_move, response_move) as u64;
     }
 
     score
