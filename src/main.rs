@@ -57,25 +57,25 @@ fn get_input() -> Lines<BufReader<File>> {
     reader.lines()
 }
 
-fn get_moves<T, F>(input: Lines<BufReader<File>>, provided_strategy: F) -> Vec<(MoveType, T)> 
-    where F: Fn(char) -> T
+fn get_moves<T, F>(input: Lines<BufReader<File>>, provided_strategy: F) -> Vec<(MoveType, T)>
+where
+    F: Fn(char) -> T,
 {
     let mut result = Vec::new();
 
     for current_line in input {
         let Ok(current_line) = current_line else {
-            unreachable!();
+            panic!("Invalid input, expected Ok");
         };
 
         let chars = current_line.chars().take(3).collect::<Vec<char>>();
-        
+
         let prompt_move = match chars[0] {
             'A' => MoveType::Rock,
             'B' => MoveType::Paper,
             'C' => MoveType::Scissors,
-            _ => unreachable!(),
+            x => panic!("Invalid character input, expected 'A' 'B' or 'C', instead got {x}"),
         };
-
         let response_move = provided_strategy(chars[2]);
 
         result.push((prompt_move, response_move));
@@ -86,7 +86,7 @@ fn get_moves<T, F>(input: Lines<BufReader<File>>, provided_strategy: F) -> Vec<(
 
 fn play_move(prompt_move: MoveType, response_move: MoveType) -> MoveOutcome {
     match (prompt_move, response_move) {
-        (x, y) if x == y => {MoveOutcome::Draw},
+        (x, y) if x == y => MoveOutcome::Draw,
         (x, y) if y == x.get_beating_move() => MoveOutcome::Win,
         _ => MoveOutcome::Loss,
     }
@@ -97,9 +97,10 @@ fn score_moves(moves: Vec<(MoveType, MoveType)>) -> u64 {
 
     for current_move in moves {
         let (prompt_move, response_move) = current_move;
-        score += (response_move.get_value() + play_move(prompt_move, response_move).get_value()) as u64;
+        score +=
+            (response_move.get_value() + play_move(prompt_move, response_move).get_value()) as u64;
     }
-    
+
     score
 }
 
@@ -108,16 +109,21 @@ fn puzzle_2() {
         'X' => MoveOutcome::Loss,
         'Y' => MoveOutcome::Draw,
         'Z' => MoveOutcome::Win,
-        _ => unreachable!(),
+        x => panic!("Invalid character input, expected 'X' 'Y' or 'Z', instead got {x}"),
     });
 
-    let moves = moves.into_iter().map(|(x, y)| (x, {
-        match y {
-            MoveOutcome::Draw => x,
-            MoveOutcome::Win => x.get_beating_move(),
-            MoveOutcome::Loss => x.get_losing_move(),
-        }
-    })).collect();
+    let moves = moves
+        .into_iter()
+        .map(|(x, y)| {
+            (x, {
+                match y {
+                    MoveOutcome::Draw => x,
+                    MoveOutcome::Win => x.get_beating_move(),
+                    MoveOutcome::Loss => x.get_losing_move(),
+                }
+            })
+        })
+        .collect();
 
     println!("{}", score_moves(moves));
 }
@@ -127,7 +133,7 @@ fn puzzle_1() {
         'X' => MoveType::Rock,
         'Y' => MoveType::Paper,
         'Z' => MoveType::Scissors,
-        _ => unreachable!(),
+        x => panic!("Invalid character input, expected 'X' 'Y' or 'Z', instead got {x}"),
     });
 
     println!("{}", score_moves(moves))
